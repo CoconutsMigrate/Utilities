@@ -2,9 +2,6 @@
 $defsrcpath = "C:\Git\system_test_cases\system"
 $defcontextlines = 0
 
-$defsrcpath = "C:\dev\test"
-$defcontextlines = 3
-
 function Clear-Array( [array] $array ) {
 	for ($index=0; $index -lt $array.Length; $index++) {
 		$array[$index] = ""
