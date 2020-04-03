@@ -1,0 +1,37 @@
+2
+
+
+-1
+write-2
+write-3
+write-match-4
+write-5
+write-match-6
+write-7
+write-8
+-9
+
+sequence for each line:
+	if match
+		Write Filename if required
+		Write Array (non-empty lines)
+		Write Current (highlighted)
+		Set LastMatch to Current
+		Clear Array
+	elseif LastMatch + ContextLines <= LineNo # Inside context lines after match
+		Write Current
+	else
+		Append To Array
+
+
+Array updated at end
+
+L#	Array	LastMatch	Write	ArrayOp
+	-   	-2
+1	-,1 	-2       	     	Add
+2	1,2 	-2       	     	Add
+3	2,3 	-2       	    	Add
+4	-   	4       	2,3,4	Write Arr, Write Current, Clear because LastMatch + ContextLines >= LineNo (4 + 2 >= 4)
+5	-   	4        	5    	Write Arr, Clear because LastMatch + ContextLines >= LineNo (4 + 2 >= 5)
+6	-   	6        	6   	Write Arr, Clear because LastMatch + ContextLines >= LineNo (6 + 2 >= 6)
+7	-   	6        	7    	Clear because LastMatch + ContextLines >= LineNo (4 + 2 <= 4)
