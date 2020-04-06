@@ -9,6 +9,9 @@ function Clear-Array( [array] $array ) {
 }
 
 function Add-To-Array( [array] $array, [string] $value ) {
+	if ($array.Length -eq 0) {
+		return
+	}
 	for ($index=0; $index -lt $array.Length - 1; $index++) {
 		$array[$index] = $array[$index + 1]
 	}
