@@ -1,6 +1,5 @@
-#Default values
-$defsrcpath = "C:\Git\system_test_cases\system"
-$defcontextlines = 0
+. "..\PsLib\PsUtil.ps1"
+. "..\PsLib\PsIni.ps1"
 
 function Clear-Array( [array] $array ) {
 	for ($index=0; $index -lt $array.Length; $index++) {
@@ -35,7 +34,6 @@ function File-Search-Display( [string] $file, [string] $query, [string] $rootdir
 	$filenameWritten = $false
 	$lastMatch = -$contextlines
 	$lineno = 0
-	$query = [regex]::escape($query)
 	$array = @("") * $contextlines
 	foreach($line in Get-Content $file -encoding UTF8) {
 		$lineno++
@@ -80,41 +78,65 @@ function Convert-To-Py( [string] $query ) {
 	return $conv
 }
 
-$srcpath = Read-Host -Prompt "Search Folder [$($defsrcpath)]"
-if ($srcpath -eq "") {
-	$srcpath = $defsrcpath
+function Query-Config( $config ) {
+	while ($config.srcpath -eq "") { # Make sure path is set
+		$p = Browse-Folder -prompt "Search Folder" -startFrom $config.srcpath
+		$config.srcpath = if ($p -ne "") {$p} else {$config.srcpath}
+	}
+	Write-Host
+	do {
+		Write-Host
+		Write-Host -ForegroundColor Cyan "Specify query to search or options below"
+		Write-Host -ForegroundColor Cyan "(empty)  Rerun previous query [$($config.query)]"
+		Write-Host -ForegroundColor Cyan "---r     Specify regex query  [$($config.query)]"
+		Write-Host -ForegroundColor Cyan "---c     Set context lines    [$($config.contextlines)]"
+		Write-Host -ForegroundColor Cyan "---p     Set search path      [$($config.srcpath)]"
+		Write-Host -ForegroundColor Cyan "---x     Exit"
+		
+		$query = Read-Host -Prompt "Search Query"
+		if ($query -eq "") {
+			# keep previous query
+		} elseif ($query -eq "---r") {
+			$config.query = Read-Host -Prompt "Regex Query"
+		} elseif ($query -eq "---c") {
+			$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
+		} elseif ($query -eq "---p") {
+			$config.srcpath = Browse-Folder -prompt "Search Folder" -startFrom $config.srcpath
+		} elseif ($query -eq "---x") {
+			exit
+		} else {
+			$config.query = [regex]::escape($query)
+		}
+		Write-Ini-File -configPath .\SearchSequence.ini -config $config
+	} until ($config.query -ne "")
 }
 
-$contextlines = Read-Host -Prompt "Context Lines [$($defcontextlines)]"
-if ($contextlines -eq "") {
-	$contextlines = $defcontextlines
-}
 
-$query = Read-Host -Prompt "Search Query"
+#Search config
+$config = @{ query = ""; contextlines = 0; srcpath = "" }
+$config = Read-Ini-File -configPath .\SearchSequence.ini -config $config
 
-While ($query -ne "") {
+While ($true) {
+	Query-Config -config $config
 	Clear-Host
 	Write-Host
 	Write-Host -ForegroundColor Green "===================================================================================================="
 	Write-Host
-	Write-Host -ForegroundColor Green "Search Folder : $($srcpath)"
-	Write-Host -ForegroundColor Green "Search Query  : $($query)"
-	Write-Host -ForegroundColor Green "Context Lines : $($contextlines)"
+	Write-Host -ForegroundColor Green "Search Folder : $($config.srcpath)"
+	Write-Host -ForegroundColor Green "Search Query  : $($config.query)"
+	Write-Host -ForegroundColor Green "Context Lines : $($config.contextlines)"
 	Write-Host
 	Write-Host -ForegroundColor Green "===================================================================================================="
 	
-	$pyquery = Convert-To-Py -query $query
-	$pyfiles = Get-ChildItem -Path $srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.py"
+	$pyquery = Convert-To-Py -query $config.query
+	$pyfiles = Get-ChildItem -Path $config.srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.py"
 	Foreach ($file in $pyfiles) {
-		File-Search-Display -file $file -query $pyquery -rootdir $srcpath -contextlines $contextlines
+		File-Search-Display -file $file -query $pyquery -rootdir $config.srcpath -contextlines $config.contextlines
 	}
 	
-	$featurequery = Convert-To-Feature -query $query
-	$featurefiles = Get-ChildItem -Path $srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.feature"
+	$featurequery = Convert-To-Feature -query $config.query
+	$featurefiles = Get-ChildItem -Path $config.srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.feature"
 	Foreach ($file in $featurefiles) {
-		File-Search-Display -file $file -query $featurequery -rootdir $srcpath -contextlines $contextlines
+		File-Search-Display -file $file -query $featurequery -rootdir $config.srcpath -contextlines $config.contextlines
 	}
-
-	Write-Host
-	$query = Read-Host -Prompt "Search Query"
 }
