@@ -93,7 +93,7 @@ function Query-Config( $config ) {
 		Write-Host -ForegroundColor Cyan "---p     Set search path      [$($config.srcpath)]"
 		Write-Host -ForegroundColor Cyan "---x     Exit"
 		
-		$query = Read-Host -Prompt "Search Query"
+		$query = Read-Host -Prompt "Search Query or Command"
 		if ($query -eq "") {
 			# keep previous query
 		} elseif ($query -eq "---r") {

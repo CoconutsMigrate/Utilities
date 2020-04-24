@@ -1,22 +1,30 @@
 
-
 ### Browse Folder
 
-function Browse-Folder([string] $prompt, [string] $startFrom) {
+function Browse-Folder([string] $prompt="Browse Folder", [string] $startFrom) {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
 
     $foldername = New-Object System.Windows.Forms.FolderBrowserDialog -Property @{
 		Description = $prompt
 		SelectedPath = $startFrom
 	}
-	
-    if ($foldername.ShowDialog() -ne "OK") {
-		return $foldername.SelectedPath
-    } else {
-		return ""
-    }
+	$foldername.ShowDialog()
+	return $foldername.SelectedPath
 }
 
+function Browse-File([string] $prompt="Browse File", [string] $startFrom, [string] $filter="*.*") {
+    [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
+	
+    # File name
+	$fileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{
+		Title = $prompt
+		Multiselect = $false
+		Filter = $filter
+		InitialDirectory = $startFrom
+	}
+	$fileBrowser.ShowDialog()
+	return $fileBrowser.FileName
+}
 
 
 
@@ -51,5 +59,13 @@ function Read-Int-Max( [string] $prompt, [int] $max ) {
 			}
 		} catch {}
 	}
+}
+
+### Boolean question
+
+function Prompt-Boolean-Choice( [string] $title ) {
+	$options = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
+	$opt = $host.UI.PromptForChoice($title , "" , $Options, 0)
+	return $opt -eq 0
 }
 
