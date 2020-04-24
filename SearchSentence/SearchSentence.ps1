@@ -113,7 +113,7 @@ function Query-Config( $config ) {
 
 
 #Search config
-$config = @{ query = ""; contextlines = 0; srcpath = "" }
+$config = @{ query = ""; contextlines = 0; srcpath = "C:\" }
 $config = Read-Ini-File -configPath .\SearchSequence.ini -config $config
 
 While ($true) {

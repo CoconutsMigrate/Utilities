@@ -8,22 +8,27 @@ function Browse-Folder([string] $prompt="Browse Folder", [string] $startFrom) {
 		Description = $prompt
 		SelectedPath = $startFrom
 	}
-	$foldername.ShowDialog()
-	return $foldername.SelectedPath
+	if ($foldername.ShowDialog() -eq "OK") {
+		return $foldername.SelectedPath
+    } else {
+		return $startFrom
+    }
 }
 
 function Browse-File([string] $prompt="Browse File", [string] $startFrom, [string] $filter="*.*") {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
 	
-    # File name
 	$fileBrowser = New-Object System.Windows.Forms.OpenFileDialog -Property @{
 		Title = $prompt
 		Multiselect = $false
 		Filter = $filter
 		InitialDirectory = $startFrom
 	}
-	$fileBrowser.ShowDialog()
-	return $fileBrowser.FileName
+	if ($fileBrowser.ShowDialog() -eq "OK") {
+		return $fileBrowser.SelectedPath
+    } else {
+		return $startFrom
+    }
 }
 
 
