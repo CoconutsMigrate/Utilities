@@ -19,10 +19,14 @@ function Get-File-Encoding( [string] $FilePath ) {
 }
 
 function Is-File( [string] $file ) {
-	return (($file -ne "") -and (Test-Path $file))
+	return (($file -ne "") -and (Test-Path $file) -and ((Get-Item $file) -is [System.IO.FileInfo]))
 }
 
-function Is-Not-File( [string] $file ) {
+function Is-Folder( [string] $file ) {
+	return (($file -ne "") -and (Test-Path $file) -and ((Get-Item $file) -is [System.IO.DirectoryInfo]))
+}
+
+function Does-Not-Exist( [string] $file ) {
 	return (($file -eq "") -or (Test-Path $file) -eq $false)
 }
 

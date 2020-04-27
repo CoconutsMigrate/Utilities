@@ -25,7 +25,7 @@ function Browse-File([string] $prompt="Browse File", [string] $startFrom, [strin
 		InitialDirectory = $startFrom
 	}
 	if ($fileBrowser.ShowDialog() -eq "OK") {
-		return $fileBrowser.SelectedPath
+		return $fileBrowser.FileName
     } else {
 		return $startFrom
     }
