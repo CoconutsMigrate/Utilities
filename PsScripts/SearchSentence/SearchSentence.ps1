@@ -1,5 +1,5 @@
-. "..\PsLib\PsUtil.ps1"
-. "..\PsLib\PsIni.ps1"
+. "..\..\PsLib\PsUtil.ps1"
+. "..\..\PsLib\PsIni.ps1"
 
 function Clear-Array( [array] $array ) {
 	for ($index=0; $index -lt $array.Length; $index++) {

@@ -1,7 +1,7 @@
-. "..\PsLib\PsUi.ps1"
-. "..\PsLib\PsUtil.ps1"
-. "..\PsLib\PsFiles.ps1"
-. "..\PsLib\PsIni.ps1"
+. "..\..\PsLib\PsUi.ps1"
+. "..\..\PsLib\PsUtil.ps1"
+. "..\..\PsLib\PsFiles.ps1"
+. "..\..\PsLib\PsIni.ps1"
 
 $config = @{}
 $config = Read-Ini-File -configPath .\SetVSC.ini -config $config

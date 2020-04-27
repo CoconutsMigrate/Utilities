@@ -1,6 +1,6 @@
-. "..\PsLib\PsUtil.ps1"
-. "..\PsLib\PsIni.ps1"
-. "..\PsLib\PsFiles.ps1"
+. "..\..\PsLib\PsUtil.ps1"
+. "..\..\PsLib\PsIni.ps1"
+. "..\..\PsLib\PsFiles.ps1"
 
 #PS C:\> ((Get-Content -path C:\ReplaceDemo.txt -Raw) -replace 'brown','white') | Set-Content -Path C:\ReplaceDemo.txt
 #PS C:\> Get-Content -path C:\ReplaceDemo.txt
