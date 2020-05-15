@@ -66,15 +66,21 @@ function File-Search-Display( [string] $file, [string] $query, [string] $rootdir
 	}
 }
 
-function Convert-To-Feature( [string] $query ) {
+function Convert-To-Feature( [string] $query, [switch] $convertRegex ) {
 	$conv = $query -replace "{","<"
 	$conv = $conv -replace "}",">"
+	if ($convertRegex) {
+		$conv = [regex]::escape($conv)
+	}
 	return $conv
 }
 
-function Convert-To-Py( [string] $query ) {
+function Convert-To-Py( [string] $query, [switch] $convertRegex ) {
 	$conv = $query -replace "<","{"
 	$conv = $conv -replace ">","}"
+	if ($convertRegex) {
+		$conv = [regex]::escape($conv)
+	}
 	return $conv
 }
 
@@ -87,8 +93,8 @@ function Query-Config( $config ) {
 	do {
 		Write-Host
 		Write-Host -ForegroundColor Cyan "Specify query to search or options below"
-		Write-Host -ForegroundColor Cyan "(empty)  Rerun previous query [$($config.query)]"
-		Write-Host -ForegroundColor Cyan "---r     Specify regex query  [$($config.query)]"
+		Write-Host -ForegroundColor Cyan "(empty)  Rerun previous query [$($config.featurequery)]"
+		Write-Host -ForegroundColor Cyan "---r     Specify regex query  [$($config.pyquery)]"
 		Write-Host -ForegroundColor Cyan "---c     Set context lines    [$($config.contextlines)]"
 		Write-Host -ForegroundColor Cyan "---p     Set search path      [$($config.srcpath)]"
 		Write-Host -ForegroundColor Cyan "---x     Exit"
@@ -97,7 +103,9 @@ function Query-Config( $config ) {
 		if ($query -eq "") {
 			# keep previous query
 		} elseif ($query -eq "---r") {
-			$config.query = Read-Host -Prompt "Regex Query"
+			$query = Read-Host -Prompt "Regex Query"
+			$config.pyquery = Convert-To-Py -query $query
+			$config.featurequery = Convert-To-Feature -query $query
 		} elseif ($query -eq "---c") {
 			$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
 		} elseif ($query -eq "---p") {
@@ -105,16 +113,17 @@ function Query-Config( $config ) {
 		} elseif ($query -eq "---x") {
 			exit
 		} else {
-			$config.query = [regex]::escape($query)
+			$config.pyquery = Convert-To-Py -query $query -convertRegex
+			$config.featurequery = Convert-To-Feature -query $query -convertRegex
 		}
-		Write-Ini-File -configPath .\SearchSequence.ini -config $config
-	} until ($config.query -ne "")
+		Write-Ini-File -configPath .\SearchSentence.ini -config $config
+	} until ($config.featurequery -ne "")
 }
 
 
 #Search config
-$config = @{ query = ""; contextlines = 0; srcpath = "C:\" }
-$config = Read-Ini-File -configPath .\SearchSequence.ini -config $config
+$config = @{ contextlines = 0; srcpath = "C:\"; pyquery = ""; featurequery = "" }
+$config = Read-Ini-File -configPath .\SearchSentence.ini -config $config
 
 While ($true) {
 	Query-Config -config $config
@@ -123,20 +132,19 @@ While ($true) {
 	Write-Host -ForegroundColor Green "===================================================================================================="
 	Write-Host
 	Write-Host -ForegroundColor Green "Search Folder : $($config.srcpath)"
-	Write-Host -ForegroundColor Green "Search Query  : $($config.query)"
+	Write-Host -ForegroundColor Green "Feature Query : $($config.featurequery)"
+	Write-Host -ForegroundColor Green "Py Query      : $($config.pyquery)"
 	Write-Host -ForegroundColor Green "Context Lines : $($config.contextlines)"
 	Write-Host
 	Write-Host -ForegroundColor Green "===================================================================================================="
 	
-	$pyquery = Convert-To-Py -query $config.query
 	$pyfiles = Get-ChildItem -Path $config.srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.py"
 	Foreach ($file in $pyfiles) {
-		File-Search-Display -file $file -query $pyquery -rootdir $config.srcpath -contextlines $config.contextlines
+		File-Search-Display -file $file -query $config.pyquery -rootdir $config.srcpath -contextlines $config.contextlines
 	}
 	
-	$featurequery = Convert-To-Feature -query $config.query
 	$featurefiles = Get-ChildItem -Path $config.srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.feature"
 	Foreach ($file in $featurefiles) {
-		File-Search-Display -file $file -query $featurequery -rootdir $config.srcpath -contextlines $config.contextlines
+		File-Search-Display -file $file -query $config.featurequery -rootdir $config.srcpath -contextlines $config.contextlines
 	}
 }
