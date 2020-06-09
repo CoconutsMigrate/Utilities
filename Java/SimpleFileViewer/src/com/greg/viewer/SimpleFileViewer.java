@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 
 public class SimpleFileViewer {
 	private JFrame frame = new JFrame("SimpleFileViewer");
@@ -45,6 +46,20 @@ public class SimpleFileViewer {
 		JMenuItem exit = new JMenuItem("Exit");
 		file.add(exit);
 		exit.addActionListener(e -> System.exit(0));
+
+
+		JMenu actions = new JMenu("Actions");
+		menubar.add(actions);
+
+		JMenuItem openDefault = new JMenuItem("Open with default app");
+		actions.add(openDefault);
+		openDefault.addActionListener(e -> {
+			try {
+				Desktop.getDesktop().open(new File(treeMan.getCurrentNode().getFilePath()));
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
+		});
 
 
 		JMenu navigate = new JMenu("Navigate");

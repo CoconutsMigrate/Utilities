@@ -1,13 +1,14 @@
 package com.greg.viewer.text;
 
-import com.greg.viewer.tree.FileNode;
+import com.greg.viewer.tree.TreeNode;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class DefaultTextViewer implements TextViewer {
-	private JTextArea text;
-	private JScrollPane pane;
+	private final JTextArea text;
+	private final JScrollPane pane;
 
 	public DefaultTextViewer() {
 		text = new JTextArea();
@@ -16,8 +17,8 @@ public class DefaultTextViewer implements TextViewer {
 	}
 
 	@Override
-	public void displayFile(FileNode node) {
-		String content = node.getContent();
+	public void displayFile(TreeNode node) {
+		String content = Objects.toString(node.getContent(), "");
 		if (content.length() > 50000) {
 			content = content.substring(0, 50000);
 		}
@@ -26,9 +27,10 @@ public class DefaultTextViewer implements TextViewer {
 	}
 
 	@Override
-	public void displayFileFull(FileNode node) {
-		String content = node.getContent();
+	public void displayFileFull(TreeNode node) {
+		String content = Objects.toString(node.getContent(), "");
 		text.setText(content);
+		text.setCaretPosition(0);
 	}
 
 	@Override

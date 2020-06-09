@@ -1,13 +1,13 @@
 package com.greg.viewer.text;
 
-import com.greg.viewer.tree.FileNode;
+import com.greg.viewer.tree.TreeNode;
 
 import java.awt.*;
 
 public interface TextViewer {
-	void displayFile(FileNode node);
+	void displayFile(TreeNode node);
 
-	void displayFileFull(FileNode node);
+	void displayFileFull(TreeNode node);
 
 	Component getTextComponent();
 }

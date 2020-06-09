@@ -1,5 +1,6 @@
 package com.greg.viewer.tree;
 
+import com.greg.viewer.common.Util;
 import com.greg.viewer.text.TextViewer;
 
 import javax.swing.*;
@@ -12,7 +13,9 @@ import java.awt.dnd.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,21 +33,21 @@ public class TreeManager implements TreeSelectionListener {
 		DropTarget target = new DropTarget(tree, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {
-				try {
-					e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-					List list = (List) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+			try {
+				e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+				List list = (List) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
-					if (list.size() == 1) {
-						File file = (File) list.get(0);
-						if (file.isDirectory()) {
-							setTreePath(file);
-						} else if (file.isFile()) {
-							setTreeArchive(file);
-						}
+				if (list.size() == 1) {
+					File file = (File) list.get(0);
+					if (file.isDirectory()) {
+						setTreePath(file);
+					} else if (file.isFile()) {
+						setTreeArchive(file);
 					}
-
-				} catch (Exception ex) {
 				}
+
+			} catch (Exception ex) {
+			}
 			}
 		});
 		rootNode = new DummyNode();
@@ -71,18 +74,31 @@ public class TreeManager implements TreeSelectionListener {
 	public void setTreeArchive(File archivePath) {
 		if (archivePath != null && archivePath.isFile()) {
 			try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(archivePath.toPath()))) {
+				rootNode = new ArchiveFolderNode(archivePath.getName(), null);
+				Map<String, TreeNode> folderMap = new HashMap<>();
+				folderMap.put("", rootNode);
+
 				for (ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
-					System.out.println("Name: " + entry.getName() + ", Dir: " + entry.isDirectory());
-					if (!entry.isDirectory()) {
+					String parent = Util.getPathNameParent(entry.getName());
+					TreeNode parentNode = folderMap.get(parent);
+
+					if (entry.isDirectory()) {
+						TreeNode node = new ArchiveFolderNode(entry.getName(), parentNode);
+						folderMap.put(entry.getName(), node);
+						parentNode.add(node);
+
+					} else {
+						String name = Util.getPathName(entry.getName());
 						String text = readFromArchive(zis).toString();
-						System.out.println(text);
+						TreeNode node = new ArchiveFileNode(name, text, parentNode);
+						parentNode.add(node);
 					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			rootNode = new FolderNode(archivePath, null);
-			processArchiveChildren(rootNode);
+			DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+			model.setRoot(rootNode);
 		}
 	}
 
@@ -98,6 +114,10 @@ public class TreeManager implements TreeSelectionListener {
 
 		}
 		return s;
+	}
+
+	public TreeNode findArchiveEntryParent() {
+		return null;
 	}
 
 	private void processArchiveChildren(TreeNode node) {
@@ -120,11 +140,11 @@ public class TreeManager implements TreeSelectionListener {
 	public void valueChanged(TreeSelectionEvent e) {
 		TreeNode node = getCurrentNode();
 		if (node != null && node.isFile()) {
-			fileSelected(node.getAsFileNode());
+			fileSelected(node);
 		}
 	}
 
-	private void fileSelected(FileNode node) {
+	private void fileSelected(TreeNode node) {
 		System.out.println(node.toString());
 		viewer.displayFile(node);
 	}

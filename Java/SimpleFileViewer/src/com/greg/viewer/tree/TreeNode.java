@@ -19,8 +19,4 @@ public abstract class TreeNode extends DefaultMutableTreeNode {
 	public FolderNode getAsFolderNode() {
 		return (FolderNode) this;
 	}
-
-	public FileNode getAsFileNode() {
-		return (FileNode) this;
-	}
 }
