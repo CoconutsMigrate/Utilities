@@ -5,7 +5,9 @@ import com.greg.viewer.tree.FileNode;
 import java.awt.*;
 
 public interface TextViewer {
-    void displayFile(FileNode file);
-    void displayFileFull(FileNode file);
-    Component getTextComponent();
+	void displayFile(FileNode node);
+
+	void displayFileFull(FileNode node);
+
+	Component getTextComponent();
 }
