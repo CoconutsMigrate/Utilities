@@ -4,3 +4,4 @@
 PsTemp
 *.class
 .idea
+*.kotlin_module
