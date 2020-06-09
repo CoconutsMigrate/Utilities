@@ -2,3 +2,5 @@
 *.ini
 */Files/*
 PsTemp
+*.class
+.idea
