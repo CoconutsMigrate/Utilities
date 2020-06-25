@@ -1,6 +1,8 @@
 
 *.ini
-Files\*
+*/Files/*
+*/*/Files/*
+*/*/*/Files/*
 PsTemp
 *.class
 .idea
