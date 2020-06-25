@@ -1,6 +1,6 @@
 
 *.ini
-*/Files/*
+Files\*
 PsTemp
 *.class
 .idea

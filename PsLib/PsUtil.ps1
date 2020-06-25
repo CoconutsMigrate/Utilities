@@ -1,5 +1,6 @@
 
 ### Browse Folder
+# TODO: move to UI
 
 function Browse-Folder([string] $prompt="Browse Folder", [string] $startFrom) {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
@@ -31,6 +32,14 @@ function Browse-File([string] $prompt="Browse File", [string] $startFrom, [strin
     }
 }
 
+function Read-Str-MinLength( [string] $prompt, [int] $minLength ) {
+	while ($true) {
+		$value = Read-Host $prompt
+		if ($value.length -ge $minLength) {
+			return $value
+		}
+	}
+}
 
 
 ### Read int values
@@ -74,3 +83,18 @@ function Prompt-Boolean-Choice( [string] $title ) {
 	return $opt -eq 0
 }
 
+
+# function A ( [scriptblock] $functionToCall) {
+	# Write-Host $functionToCall
+    # Write-Host "I'm calling $($functionToCall.Invoke(4))"
+# }
+
+# function B($x){
+    # Write-Output "Function B with $x"
+# }
+
+# Function C ($x) {
+    # Write-Output "Function C with $x"
+# }
+
+# A -FunctionToCall $function:B
