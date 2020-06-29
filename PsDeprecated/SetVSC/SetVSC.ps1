@@ -3,7 +3,14 @@
 . "..\..\PsLib\PsFiles.ps1"
 . "..\..\PsLib\PsIni.ps1"
 
-$config = @{}
+$rootDir = "C:\Git\system_test_cases"
+$config = @{
+	rootDir = $rootDir;
+	systemDir = "$($rootDir)\system\";
+	vscodeDir = "$($rootDir)\.vscode";
+	launch = "$($rootDir)\.vscode\launch.json";
+	settings = "$($rootDir)\.vscode\settings.json"
+}
 $config = Read-Ini-File -configPath .\SetVSC.ini -config $config
 
 Write-Host "$(Get-Content -Path $config.launch -Raw -Encoding UTF8)"

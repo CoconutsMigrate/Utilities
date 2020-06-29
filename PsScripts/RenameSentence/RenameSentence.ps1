@@ -11,11 +11,13 @@ function File-Filter-Replace( [string] $srcpath, [string] $filter, [string] $fro
 	Foreach-Object {
 		if ((Get-Item $_.FullName).length -ge 4) {
 			$encoding = Get-File-Encoding -FilePath $_.FullName
-			$content = Get-Content $_.FullName -encoding $encoding
+			$content = Get-Content $_.FullName -Raw
 			$fromregex = [regex]::escape($from)
 			$newcontent = $content -replace $fromregex,$to
-			#$newcontent | Out-File -FilePath $_.FullName -encoding $encoding -NoNewline
-			Set-Content -Path $_.FullName -encoding $encoding -Value $newcontent
+			if ($content -ne $newcontent) {
+				$newcontent | Set-Content -Path $_.FullName -NoNewline
+				Write-Host $_.FullName
+			}
 		}
 	}
 }
