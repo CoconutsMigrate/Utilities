@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class SimpleFileViewer {
 	private JFrame frame = new JFrame("SimpleFileViewer");
-	private JTree tree;
+	private Component tree;
 	private Component text;
 	private JSplitPane splitter;
 	private TreeManager treeMan;

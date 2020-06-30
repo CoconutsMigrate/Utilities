@@ -8,6 +8,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.*;
 import java.io.File;
@@ -22,6 +23,7 @@ import java.util.zip.ZipInputStream;
 public class TreeManager implements TreeSelectionListener {
 	private TreeNode rootNode;
 	private final JTree tree;
+	private final JScrollPane pane;
 	private final TextViewer viewer;
 
 	public TreeManager(TextViewer viewer) {
@@ -30,6 +32,7 @@ public class TreeManager implements TreeSelectionListener {
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(this);
 		tree.setDragEnabled(true);
+		pane = new JScrollPane(tree);
 		DropTarget target = new DropTarget(tree, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {
@@ -124,8 +127,8 @@ public class TreeManager implements TreeSelectionListener {
 
 	}
 
-	public JTree getTree() {
-		return tree;
+	public Component getTree() {
+		return pane;
 	}
 
 	public TreeNode getRootNode() {
