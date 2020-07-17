@@ -91,6 +91,7 @@ function Query-Config( $config ) {
 		$config.srcpath = if ($p -ne "") {$p} else {$config.srcpath}
 	}
 	Write-Host
+	$enteredQuery = $false
 	do {
 		Write-Host
 		Write-Host -ForegroundColor Cyan "Specify query to search or options below"
@@ -103,6 +104,7 @@ function Query-Config( $config ) {
 		$query = Read-Host -Prompt "Search Query or Command"
 		if ($query -eq "") {
 			# keep previous query
+			$enteredQuery = $true
 		} elseif ($query -like "-r*") {
 			$query = $query -replace "-r *"
 			while ($query -eq "") {
@@ -133,9 +135,10 @@ function Query-Config( $config ) {
 		} else {
 			$config.pyquery = Convert-To-Py -query $query -convertRegex
 			$config.featurequery = Convert-To-Feature -query $query -convertRegex
+			$enteredQuery = $true
 		}
 		Write-Ini-File -configPath .\SearchSentence.ini -config $config
-	} until ($config.featurequery -ne "")
+	} until ($enteredQuery)
 }
 
 
