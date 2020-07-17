@@ -85,6 +85,28 @@ function Bound-Int( [int] $value, [int] $min, [int] $max ) {
 	return $value
 }
 
+function Within-Bounds( $value, [int] $min, [int] $max ) {
+	if ($value -eq "") {
+		return $false
+	}
+	try {
+		[int] $v = $value
+		return $v -ge $min -and $v -le $max
+	} catch {
+		return $false
+	}
+}
+
+# Get return initial as an int if valid, else read value
+function Get-Int-With-Initial( [string] $prompt, $initial, [int] $min, [int] $max ) {
+	if (Within-Bounds -value $initial -min $min -max $max) {
+		[int] $value = $initial
+		return $value
+	} else {
+		return Read-Int-Min-Max -prompt $prompt -min $min -max $max
+	}
+}
+
 ### Boolean question
 
 function Prompt-Boolean-Choice( [string] $title ) {
