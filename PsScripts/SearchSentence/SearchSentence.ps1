@@ -1,5 +1,6 @@
 . "..\..\PsLib\PsUtil.ps1"
 . "..\..\PsLib\PsIni.ps1"
+. "..\..\PsLib\PsFiles.ps1"
 
 function Clear-Array( [array] $array ) {
 	for ($index=0; $index -lt $array.Length; $index++) {
@@ -94,23 +95,42 @@ function Query-Config( $config ) {
 		Write-Host
 		Write-Host -ForegroundColor Cyan "Specify query to search or options below"
 		Write-Host -ForegroundColor Cyan "(empty)  Rerun previous query [$($config.featurequery)]"
-		Write-Host -ForegroundColor Cyan "---r     Specify regex query  [$($config.pyquery)]"
-		Write-Host -ForegroundColor Cyan "---c     Set context lines    [$($config.contextlines)]"
-		Write-Host -ForegroundColor Cyan "---p     Set search path      [$($config.srcpath)]"
-		Write-Host -ForegroundColor Cyan "---x     Exit"
+		Write-Host -ForegroundColor Cyan "-r       Specify regex query  [$($config.pyquery)]"
+		Write-Host -ForegroundColor Cyan "-c       Set context lines    [$($config.contextlines)]"
+		Write-Host -ForegroundColor Cyan "-p       Set search path      [$($config.srcpath)]"
+		Write-Host -ForegroundColor Cyan "-x       Exit"
 		
 		$query = Read-Host -Prompt "Search Query or Command"
 		if ($query -eq "") {
 			# keep previous query
-		} elseif ($query -eq "---r") {
-			$query = Read-Host -Prompt "Regex Query"
+		} elseif ($query -match "-r") {
+			$query = $query -replace "-r *"
+			while ($query -eq "") {
+				$query = Read-Host -Prompt "Regex Query"
+			}
 			$config.pyquery = Convert-To-Py -query $query
 			$config.featurequery = Convert-To-Feature -query $query
-		} elseif ($query -eq "---c") {
-			$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
-		} elseif ($query -eq "---p") {
-			$config.srcpath = Browse-Folder -prompt "Search Folder" -startFrom $config.srcpath
-		} elseif ($query -eq "---x") {
+		} elseif ($query -match "-c") {
+			$query = $query -replace "-c *"
+			if ($query -eq "") {
+				$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
+			} else {
+				try {
+					[int] $value = $query
+					$config.contextlines = Bound-Int $value -min 0 -max 10
+				} catch {
+					$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
+				}
+			}
+		} elseif ($query -match "-p") {
+			$query = $query -replace "-p *"
+			if (Is-Folder -file $query) {
+				$config.srcpath = $query
+			} else {
+				$config.srcpath = Browse-Folder -prompt "Search Folder" -startFrom $config.srcpath
+			}
+			pause
+		} elseif ($query -match "-x") {
 			exit
 		} else {
 			$config.pyquery = Convert-To-Py -query $query -convertRegex
