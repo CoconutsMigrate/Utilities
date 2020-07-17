@@ -75,6 +75,16 @@ function Read-Int-Max( [string] $prompt, [int] $max ) {
 	}
 }
 
+function Bound-Int( [int] $value, [int] $min, [int] $max ) {
+	if ($value -lt $min) {
+		return $min
+	}
+	if ($value -gt $max) {
+		return $max
+	}
+	return $value
+}
+
 ### Boolean question
 
 function Prompt-Boolean-Choice( [string] $title ) {
