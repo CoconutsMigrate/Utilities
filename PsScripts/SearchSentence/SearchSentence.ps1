@@ -31,18 +31,18 @@ function Write-Context-Lines( $array ) {
 	}
 }
 
-function File-Search-Display( [string] $file, [string] $query, [string] $rootdir, [string] $contextlines ) {
+function File-Search-Display( [string] $file, $config, [string] $query ) {
 	$filenameWritten = $false
-	$lastMatch = -$contextlines
+	$lastMatch = -10
 	$lineno = 0
-	$array = @("") * $contextlines
+	$array = @("") * $config.contextlinesprev
 	foreach($line in Get-Content $file -encoding UTF8) {
 		$lineno++
 		if($line -match $query){
 			# Write file name if needed
 			if ($filenameWritten -eq $false) {
 				$filenameWritten = $true
-				$truncpath = $file -replace [regex]::escape($rootdir)
+				$truncpath = $file -replace [regex]::escape($config.srcpath)
 				Write-Host -ForegroundColor Blue "`n~$($truncpath)"
 			}
 			# Write previous valid context lines
@@ -57,7 +57,7 @@ function File-Search-Display( [string] $file, [string] $query, [string] $rootdir
 			# Clear Array
 			Clear-Array -array $array
 			
-		} elseif ($lineno -le $lastMatch + $contextlines) {
+		} elseif ($lineno -le $lastMatch + $config.contextlinesnext) {
 			# Write current context line
 			Write-Line -lineno "" -line $line -highlight $false
 		} else {
@@ -94,43 +94,41 @@ function Query-Config( $config ) {
 	do {
 		Write-Host
 		Write-Host -ForegroundColor Cyan "Specify query to search or options below"
-		Write-Host -ForegroundColor Cyan "(empty)  Rerun previous query [$($config.featurequery)]"
-		Write-Host -ForegroundColor Cyan "-r       Specify regex query  [$($config.pyquery)]"
-		Write-Host -ForegroundColor Cyan "-c       Set context lines    [$($config.contextlines)]"
-		Write-Host -ForegroundColor Cyan "-p       Set search path      [$($config.srcpath)]"
-		Write-Host -ForegroundColor Cyan "-x       Exit"
+		Write-Host -ForegroundColor Cyan "(empty)        Rerun previous query [$($config.featurequery)]"
+		Write-Host -ForegroundColor Cyan "-r             Specify regex query  [$($config.pyquery)]"
+		Write-Host -ForegroundColor Cyan "-c -cp -cn     Set (both, prev, next) context lines    [$($config.contextlinesprev), $($config.contextlinesnext)]"
+		Write-Host -ForegroundColor Cyan "-p             Set search path      [$($config.srcpath)]"
+		Write-Host -ForegroundColor Cyan "-x             Exit"
 		
 		$query = Read-Host -Prompt "Search Query or Command"
 		if ($query -eq "") {
 			# keep previous query
-		} elseif ($query -match "-r") {
+		} elseif ($query -like "-r*") {
 			$query = $query -replace "-r *"
 			while ($query -eq "") {
 				$query = Read-Host -Prompt "Regex Query"
 			}
 			$config.pyquery = Convert-To-Py -query $query
 			$config.featurequery = Convert-To-Feature -query $query
-		} elseif ($query -match "-c") {
+		} elseif ($query -like "-cp*") {
+			$query = $query -replace "-cp *"
+			$config.contextlinesprev = Get-Int-With-Initial -prompt "Prev Context Lines" -initial $query -min 0 -max 10
+		} elseif ($query -like "-cn*") {
+			$query = $query -replace "-cn *"
+			$config.contextlinesnext = Get-Int-With-Initial -prompt "Next Context Lines" -initial $query -min 0 -max 10
+		} elseif ($query -like "-c*") {
 			$query = $query -replace "-c *"
-			if ($query -eq "") {
-				$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
-			} else {
-				try {
-					[int] $value = $query
-					$config.contextlines = Bound-Int $value -min 0 -max 10
-				} catch {
-					$config.contextlines = Read-Int-Min-Max -prompt "Context Lines" -min 0 -max 10
-				}
-			}
-		} elseif ($query -match "-p") {
+			$config.contextlines = Get-Int-With-Initial -prompt "Context Lines" -initial $query -min 0 -max 10
+			$config.contextlinesprev = $config.contextlines
+			$config.contextlinesnext = $config.contextlines
+		} elseif ($query -like "-p*") {
 			$query = $query -replace "-p *"
 			if (Is-Folder -file $query) {
 				$config.srcpath = $query
 			} else {
 				$config.srcpath = Browse-Folder -prompt "Search Folder" -startFrom $config.srcpath
 			}
-			pause
-		} elseif ($query -match "-x") {
+		} elseif ($query -like "-x*") {
 			exit
 		} else {
 			$config.pyquery = Convert-To-Py -query $query -convertRegex
@@ -142,7 +140,7 @@ function Query-Config( $config ) {
 
 
 #Search config
-$config = @{ contextlines = 0; srcpath = "C:\"; pyquery = ""; featurequery = "" }
+$config = @{ contextlines = 0; contextlinesprev = 0; contextlinesnext = 0; srcpath = "C:\"; pyquery = ""; featurequery = "" }
 $config = Read-Ini-File -configPath .\SearchSentence.ini -config $config
 
 While ($true) {
@@ -154,17 +152,17 @@ While ($true) {
 	Write-Host -ForegroundColor Green "Search Folder : $($config.srcpath)"
 	Write-Host -ForegroundColor Green "Feature Query : $($config.featurequery)"
 	Write-Host -ForegroundColor Green "Py Query      : $($config.pyquery)"
-	Write-Host -ForegroundColor Green "Context Lines : $($config.contextlines)"
+	Write-Host -ForegroundColor Green "Context Lines : $($config.contextlinesprev),$($config.contextlinesnext)"
 	Write-Host
 	Write-Host -ForegroundColor Green "===================================================================================================="
 	
 	$pyfiles = Get-ChildItem -Path $config.srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.py"
 	Foreach ($file in $pyfiles) {
-		File-Search-Display -file $file -query $config.pyquery -rootdir $config.srcpath -contextlines $config.contextlines
+		File-Search-Display -file $file -config $config -query $config.pyquery
 	}
 	
 	$featurefiles = Get-ChildItem -Path $config.srcpath -File -Exclude "reports","__*__" -Recurse -Filter "*.feature"
 	Foreach ($file in $featurefiles) {
-		File-Search-Display -file $file -query $config.featurequery -rootdir $config.srcpath -contextlines $config.contextlines
+		File-Search-Display -file $file -config $config -query $config.featurequery
 	}
 }
