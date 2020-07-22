@@ -94,7 +94,7 @@ function File-Search-Display( [string] $file, $config, [string] $query ) {
 			if ($filenameWritten -eq $false) {
 				$filenameWritten = $true
 				$truncpath = $file -replace [regex]::escape($config.srcpath)
-				Write-Host -ForegroundColor Magenta "`n~$($truncpath)"
+				Write-Host -ForegroundColor Blue "`n~$($truncpath)"
 			}
 			
 			$line = $line -replace "@step",""
