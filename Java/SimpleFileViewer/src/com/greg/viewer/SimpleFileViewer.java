@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class SimpleFileViewer {
-	private JFrame frame = new JFrame("SimpleFileViewer");
+	private static final String VERSION = "v0.1.1";
+	
+	private JFrame frame = new JFrame("SimpleFileViewer " + VERSION);
 	private Component tree;
 	private Component text;
 	private JSplitPane splitter;
@@ -42,6 +44,11 @@ public class SimpleFileViewer {
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 		file.add(open);
 		open.addActionListener(e -> selectFolder());
+
+		JMenuItem reload = new JMenuItem("Reload folder");
+		reload.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
+		file.add(reload);
+		reload.addActionListener(e -> reloadFolder());
 
 		JMenuItem exit = new JMenuItem("Exit");
 		file.add(exit);
@@ -90,6 +97,15 @@ public class SimpleFileViewer {
 		if (retval == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			treeMan.setTreePath(file);
+		}
+	}
+
+	private void reloadFolder() {
+		try {
+			File root = new File(treeMan.getRootNode().getFilePath());
+			treeMan.setTreePath(root);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
