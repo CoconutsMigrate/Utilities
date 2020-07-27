@@ -24,7 +24,7 @@ function Convert-To-Py( [string] $query, [switch] $convertRegex ) {
 	return $conv
 }
 
-function Query-Config( $config ) {
+function Query-Config( $config, [string] $configFileName ) {
 	while ($config.srcpath -eq "") { # Make sure path is set
 		$p = Browse-Folder -prompt "Search Folder" -startFrom $config.srcpath
 		$config.srcpath = if ($p -ne "") {$p} else {$config.srcpath}
@@ -77,6 +77,6 @@ function Query-Config( $config ) {
 			$config.featurequery = Convert-To-Feature -query $query -convertRegex
 			$enteredQuery = $true
 		}
-		Write-Ini-File -configPath .\SearchSentence.ini -config $config
+		Write-Ini-File -configPath $configFileName -config $config
 	} until ($enteredQuery)
 }

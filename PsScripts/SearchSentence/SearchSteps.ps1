@@ -1,6 +1,7 @@
 . "..\..\PsLib\PsUtil.ps1"
 . "..\..\PsLib\PsIni.ps1"
 . "..\..\PsLib\PsFiles.ps1"
+. "..\..\PsLib\PsPy.ps1"
 
 . ".\Common.ps1"
 
@@ -54,7 +55,7 @@ $config = @{ contextlines = 0; contextlinesprev = 0; contextlinesnext = 0; srcpa
 $config = Read-Ini-File -configPath .\SearchSteps.ini -config $config
 
 While ($true) {
-	Query-Config -config $config
+	Query-Config -config $config -configFileName .\SearchSteps.ini
 	Clear-Host
 	Write-Host
 	Write-Host -ForegroundColor Green "===================================================================================================="
@@ -70,6 +71,9 @@ While ($true) {
 	$fnList = [System.Collections.ArrayList]@()
 	Foreach ($file in $pyfiles) {	
 		File-Search-Display -file $file -config $config -query $config.pyquery -showDetails:$details
+	}
+	Foreach ($fn in $fnList) {
+		Display-Py-Function-In-Folder -name $fn -folderPath $config.srcpath
 	}
 }
 

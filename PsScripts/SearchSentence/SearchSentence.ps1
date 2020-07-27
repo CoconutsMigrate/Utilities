@@ -67,7 +67,7 @@ $config = @{ contextlines = 0; contextlinesprev = 0; contextlinesnext = 0; srcpa
 $config = Read-Ini-File -configPath .\SearchSentence.ini -config $config
 
 While ($true) {
-	Query-Config -config $config
+	Query-Config -config $config -configFileName .\SearchSentence.ini
 	Clear-Host
 	Write-Host
 	Write-Host -ForegroundColor Green "===================================================================================================="
