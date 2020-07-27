@@ -38,8 +38,7 @@ function File-Search-Display( [string] $file, $config, [string] $query, [switch]
 				Write-Line -line $line -highlight $false -trim $false
 				if ($line -match "^ *[a-z_]+\(") {
 					$result = [regex]::Matches($line, "^ *(?<name>[A-Za-z_]+)\(.*")
-					#Write-Line -line $result[0].Groups['name'].Value -highlight $false -trim $false
-					$fnList.Add($result[0].Groups['name'].Value)
+					$fnList.Add($result[0].Groups['name'].Value) | Out-Null
 				}
 			}
 		}

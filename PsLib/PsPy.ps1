@@ -20,7 +20,7 @@ function Display-Py-Function-In-File( [string] $filePath, [string] $name, [strin
 			$truncpath = $filePath -replace [regex]::escape($truncPath)
 			Write-Host -ForegroundColor Blue "`n~$($truncpath)"
 			$currentMatch = $true
-			Write-Host "$($lineno.ToString().PadLeft(5, " ")) $line"
+			Write-Host -ForegroundColor "Yellow" "$($lineno.ToString().PadLeft(5, " ")) $line"
 		} elseif ($currentMatch) {
 			if ($line -match "^\S") {
 				$currentMatch = $false
