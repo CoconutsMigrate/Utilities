@@ -71,6 +71,8 @@ While ($true) {
 	Foreach ($file in $pyfiles) {	
 		File-Search-Display -file $file -config $config -query $config.pyquery -showDetails:$details
 	}
+	
+	$fnList = $fnList | select -Unique
 	Foreach ($fn in $fnList) {
 		Display-Py-Function-In-Folder -name $fn -folderPath $config.srcpath
 	}
