@@ -5,14 +5,20 @@
 
 . ".\Common.ps1"
 
+# Match @step("step name") followed by def
+# Match def fn_name():
 function File-Search-Display( [string] $file, $config, [string] $query, [switch] $showDetails ) {
 	$filenameWritten = $false
 	$lineno = 0
-	$query = "@step.*$($query)"
-	$currentMatch = $false
+	# Match query as a function
+	$defQuery = " *def +$($query) *\(.*\):"
+	$defCurrentMatch = $false
+	# Match query as a step
+	$stepQuery = "@step.*$($query)"
+	$stepCurrentMatch = $false
 	foreach($line in Get-Content $file -encoding UTF8) {
 		$lineno++
-		if($line -match $query){
+		if($line -match $stepQuery){
 			# Write file name if needed
 			if ($filenameWritten -eq $false) {
 				$filenameWritten = $true
@@ -28,12 +34,13 @@ function File-Search-Display( [string] $file, $config, [string] $query, [switch]
 
 			# Write match lines
 			Write-Line -lineno $lineno -line $line -highlight $true
-			$currentMatch = $true
-		} elseif ($currentMatch -and $showDetails -and ($line -match "^def")) {
+			$stepCurrentMatch = $true
+		} elseif ($stepCurrentMatch -and $showDetails -and ($line -match "^def")) {
 			Write-Line -line $line -highlight $false -trim $false
-		} elseif ($currentMatch -and $showDetails) {
+		} elseif (($stepCurrentMatch -or $defCurrentMatch) -and $showDetails) {
 			if ($line -match "^\S") {
-				$currentMatch = $false
+				$stepCurrentMatch = $false
+				$defCurrentMatch = $false
 			} else {
 				Write-Line -line $line -highlight $false -trim $false
 				if ($line -match "^ *([a-zA-Z_]*\.)?([a-zA-Z_]+)\(") {
@@ -41,6 +48,14 @@ function File-Search-Display( [string] $file, $config, [string] $query, [switch]
 					$fnList.Add($result) | Out-Null
 				}
 			}
+		} elseif ($line -match $defQuery) {
+			if ($filenameWritten -eq $false) {
+				$filenameWritten = $true
+				$truncpath = $file -replace [regex]::escape($config.srcpath)
+				Write-Host -ForegroundColor Blue "`n~$($truncpath)"
+			}
+			Write-Line -lineno $lineno -line $line -highlight $true
+			$defCurrentMatch = $true
 		}
 	}
 }
@@ -73,8 +88,9 @@ While ($true) {
 	}
 	
 	$fnList = $fnList | select -Unique
-	Foreach ($fn in $fnList) {
-		Display-Py-Function-In-Folder -name $fn -folderPath $config.srcpath
-	}
+	Display-Py-Functions-In-Folder -fnList $fnList -folderPath $config.srcpath
+	#Foreach ($fn in $fnList) {
+	#	Display-Py-Function-In-Folder -name $fn -folderPath $config.srcpath
+	#}
 }
 
