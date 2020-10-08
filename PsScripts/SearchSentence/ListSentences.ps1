@@ -9,12 +9,11 @@ function File-Search-Display( [string] $file, $config, [string] $query ) {
 	foreach($line in Get-Content $file -encoding UTF8) {
 		if($line -match $query){
 			$res = $Matches[1]
-			$res = $res -replace "^'",""
-			$res = $res -replace "'$",""
+			$res = $res -replace "'",""
 			$res = $res -replace "{","<"
-			$res = $res -replace "}'",">"
+			$res = $res -replace "}",">"
 			# Write match lines
-			Write-Line -lineno "" -line $res -highlight $true			
+			Write-Line -lineno "" -line $res -highlight $true
 		}
 	}
 }
