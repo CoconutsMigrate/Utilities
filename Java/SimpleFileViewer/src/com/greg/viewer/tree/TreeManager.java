@@ -1,5 +1,6 @@
 package com.greg.viewer.tree;
 
+import com.greg.viewer.SimpleFileViewer;
 import com.greg.viewer.common.Util;
 import com.greg.viewer.text.TextViewer;
 
@@ -33,12 +34,12 @@ public class TreeManager implements TreeSelectionListener {
 		tree.addTreeSelectionListener(this);
 		tree.setDragEnabled(true);
 		pane = new JScrollPane(tree);
-		DropTarget target = new DropTarget(tree, new DropTargetAdapter() {
+		new DropTarget(tree, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {
 			try {
 				e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-				List list = (List) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+				List<?> list = (List<?>) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
 				if (list.size() == 1) {
 					File file = (File) list.get(0);
@@ -123,10 +124,6 @@ public class TreeManager implements TreeSelectionListener {
 		return null;
 	}
 
-	private void processArchiveChildren(TreeNode node) {
-
-	}
-
 	public Component getTree() {
 		return pane;
 	}
@@ -141,9 +138,13 @@ public class TreeManager implements TreeSelectionListener {
 
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
-		TreeNode node = getCurrentNode();
-		if (node != null && node.isFile()) {
-			fileSelected(node);
+		try {
+			TreeNode node = getCurrentNode();
+			if (node != null && node.isFile()) {
+				fileSelected(node);
+			}
+		} catch (Exception ex) {
+			viewer.displayText(SimpleFileViewer.formatException(ex));
 		}
 	}
 

@@ -1,9 +1,10 @@
 package com.greg.viewer.tree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.List;
 
 public abstract class TreeNode extends DefaultMutableTreeNode {
+	private static final long serialVersionUID = 1L;
+
 	public abstract String getFilePath();
 
 	public abstract boolean isFile();

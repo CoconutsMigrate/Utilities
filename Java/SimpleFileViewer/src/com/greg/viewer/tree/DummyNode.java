@@ -1,8 +1,8 @@
 package com.greg.viewer.tree;
 
-import java.util.List;
-
 public class DummyNode extends TreeNode {
+	private static final long serialVersionUID = 1L;
+
 	public DummyNode() {
 	}
 

@@ -3,6 +3,7 @@ package com.greg.viewer.tree;
 import java.io.File;
 
 public class FolderNode extends TreeNode {
+	private static final long serialVersionUID = 1L;
 	private final File folder;
 	private final TreeNode parent;
 

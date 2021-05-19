@@ -1,0 +1,2 @@
+PowerShell -NoProfile -ExecutionPolicy Unrestricted -Command "& {Start-Process PowerShell -ArgumentList '-NoProfile -ExecutionPolicy Unrestricted -File ""C:\dev\git\Utilities\Utilities\PsScripts\WebBuild\run-tomcat9-params.ps1""' -Verb RunAs}";
+#.\build-utility.ps1 tomcat9

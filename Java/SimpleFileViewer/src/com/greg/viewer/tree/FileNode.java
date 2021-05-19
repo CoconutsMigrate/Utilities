@@ -1,10 +1,12 @@
 package com.greg.viewer.tree;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 
 public class FileNode extends TreeNode {
+	private static final long serialVersionUID = 1L;
 	private final File file;
 	private final TreeNode parent;
 
@@ -31,7 +33,7 @@ public class FileNode extends TreeNode {
 	@Override
 	public String getContent() {
 		try {
-			return Files.readString(file.toPath());
+			return readFileContent(file.getPath());
 		} catch (IOException e) {
 			return file.getPath();
 		}
@@ -49,5 +51,18 @@ public class FileNode extends TreeNode {
 	public String toString() {
 		return file.getName();
 	}
+	
+	private static String readFileContent(String filePath) throws IOException 
+    {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+	        String sCurrentLine;
+	        while ((sCurrentLine = br.readLine()) != null) 
+	        {
+	            contentBuilder.append(sCurrentLine).append("\n");
+	        }
+        }
+        return contentBuilder.toString();
+    }
 
 }

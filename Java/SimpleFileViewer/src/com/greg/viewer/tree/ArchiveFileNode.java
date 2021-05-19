@@ -1,6 +1,7 @@
 package com.greg.viewer.tree;
 
 public class ArchiveFileNode extends TreeNode {
+	private static final long serialVersionUID = 1L;
 	private final String path;
 	private final String content;
 	private final TreeNode parent;

@@ -1,5 +1,6 @@
 package com.greg.viewer.text;
 
+import com.greg.viewer.SimpleFileViewer;
 import com.greg.viewer.tree.TreeNode;
 
 import javax.swing.*;
@@ -17,20 +18,33 @@ public class DefaultTextViewer implements TextViewer {
 	}
 
 	@Override
+	public void displayText(String text) {
+		this.text.setText(text);
+	}
+
+	@Override
 	public void displayFile(TreeNode node) {
-		String content = Objects.toString(node.getContent(), "");
-		if (content.length() > 50000) {
-			content = content.substring(0, 50000);
+		try {
+			String content = Objects.toString(node.getContent(), "");
+			if (content.length() > 50000) {
+				content = content.substring(0, 50000);
+			}
+			text.setText(content);
+			text.setCaretPosition(0);
+		} catch (Exception e) {
+			text.setText(SimpleFileViewer.formatException(e));
 		}
-		text.setText(content);
-		text.setCaretPosition(0);
 	}
 
 	@Override
 	public void displayFileFull(TreeNode node) {
-		String content = Objects.toString(node.getContent(), "");
-		text.setText(content);
-		text.setCaretPosition(0);
+		try {
+			String content = Objects.toString(node.getContent(), "");
+			text.setText(content);
+			text.setCaretPosition(0);
+		} catch (Exception e) {
+			text.setText(SimpleFileViewer.formatException(e));
+		}
 	}
 
 	@Override

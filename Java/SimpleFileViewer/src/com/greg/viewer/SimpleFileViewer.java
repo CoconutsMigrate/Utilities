@@ -1,16 +1,24 @@
 package com.greg.viewer;
 
-import com.greg.viewer.text.DefaultTextViewer;
-import com.greg.viewer.text.TextViewer;
-import com.greg.viewer.tree.TreeManager;
-import com.greg.viewer.tree.TreeNode;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
+import javax.swing.WindowConstants;
+
+import com.greg.viewer.text.DefaultTextViewer;
+import com.greg.viewer.text.TextViewer;
+import com.greg.viewer.tree.TreeManager;
 
 public class SimpleFileViewer {
 	private static final String VERSION = "v0.1.1";
@@ -126,6 +134,14 @@ public class SimpleFileViewer {
 		if (path != null && new File(path).isDirectory()) {
 			treeMan.setTreePath(new File(path));
 		}
+	}
+	
+	public static String formatException(Exception e) {
+		StringBuilder b = new StringBuilder("Exception: ").append(e.getMessage()).append("\n");
+		for (StackTraceElement s : e.getStackTrace()) {
+			b.append("\n").append(s.toString());
+		}
+		return b.toString();
 	}
 
 	public static void main(String args[]) {
